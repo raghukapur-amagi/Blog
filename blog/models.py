@@ -1,44 +1,32 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.utils import timezone
 
-# Create your models here.
+class BaseModel(models.Model):
+    created_at = models.DateField(default=timezone.now)
+    updated_at = models.DateField(default=timezone.now)
+    class Meta:
+        abstract = True
 
-class Users(models.Model):
-    username = models.CharField(validators=[MinLengthValidator(4)],max_length= 30,unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30, null = True)
-    email = models.EmailField()
-    bio = models.TextField(null = True)
-    password = models.CharField(validators=[MinLengthValidator(6)],max_length=30)
-    created_at = models.TimeField(auto_now=False, auto_now_add=True)
-    updated_at = models.TimeField(auto_now=True)
-
-
-class Articles(models.Model):
-    user = models.ForeignKey('Users', on_delete=models.CASCADE)
-    title = models.CharField(max_length=30)
+class Articles(BaseModel):
+    publish = "Publish"
+    draft = "Draft"
+    user = models.ForeignKey('user.Users', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100)
     body = models.TextField()
     status = models.CharField(
-    choices = [('Publish','Publish'),('Draft','Draft')],
-        default = 'Draft',
-        max_length=8,
+    choices = [('Publish',publish),('Draft',draft)],
+        default = draft,
+        max_length=20,
         )
-    created_at = models.TimeField(auto_now=False, auto_now_add=True)
-    updated_at = models.TimeField(auto_now=True)
 
-class Tags(models.Model):
-    tag_name = models.CharField(max_length = 15, unique=True)
-    created_at = models.TimeField(auto_now=False, auto_now_add=True)
-    updated_at = models.TimeField(auto_now=True)
+class Tags(BaseModel):
+    tag_name = models.CharField(max_length = 100, unique=True)
 
-class Article_Tag_Mapping(models.Model):
+class Article_Tag_Mapping(BaseModel):
     article = models.ForeignKey('Articles', on_delete=models.CASCADE)
     tag = models.ForeignKey('Tags', on_delete=models.CASCADE)
-    created_at = models.TimeField(auto_now=False, auto_now_add=True)
-    updated_at = models.TimeField(auto_now=True)
 
-class Comments(models.Model):
+class Comments(BaseModel):
     article = models.ForeignKey('Articles', on_delete=models.CASCADE)
-    comments = models.TextField(null = False)
-    created_at = models.TimeField(auto_now=False, auto_now_add=True)
-    updated_at = models.TimeField(auto_now=True)    
+    comments = models.TextField(null = False) 
