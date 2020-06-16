@@ -40,8 +40,8 @@
     <div>
     <tr> 
         <td>{{ item.title }}</td>
-        <td><a href="/article/{{ item.id }}/">View</a></td>
-        <td><a href="/update/{{ item.id }}/">Click to Edit</a></td>
+        <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
+        <td><a href="/update/{{ item.title }}-{{item.slug}}/">Click to Edit</a></td>
     </tr>
     </div>
     {% endfor %}

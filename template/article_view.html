@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html>
+<ul>
+    <li><a href="/home">Home</a></li>
+    <li><a href="/logout">Logout</a></li>
+</ul>  
+<hr>
     {% for article in user_articles %}
     <h2>Title:-</h3> {{ article.title }}
     <h3>Body:- </h3> {{ article.body}}

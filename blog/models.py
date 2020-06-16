@@ -14,6 +14,7 @@ class Articles(BaseModel):
     user = models.ForeignKey('user.Users', on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     body = models.TextField()
+    slug = models.CharField(max_length= 10, unique = True)
     status = models.CharField(
     choices = [('Publish',publish),('Draft',draft)],
         default = draft,

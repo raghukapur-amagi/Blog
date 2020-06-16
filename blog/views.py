@@ -3,13 +3,16 @@ from blog.models import Articles ,Tags, Article_Tag_Mapping, Comments
 from django.contrib import messages
 from user.models import Users
 from django.http import HttpResponse, HttpResponseRedirect
+import random
+import string
 
 # Create your views here.
 def create(request):
     if request.method == "POST":
         form = (request.POST)
         check = Users.objects.get(user_id=request.user.id)
-        article = Articles(user = check, title= form["title"], body = form["body"], status = form['status'])
+        slug = get_slug()
+        article = Articles(user = check, title= form["title"], body = form["body"], status = form['status'], slug = slug)
         article.save()
         tags = form["tags"].split(",")
         if tags[0] != '':
@@ -23,34 +26,35 @@ def create(request):
                     mapping = Article_Tag_Mapping(article_id = article.id, tag_id = tag.id)
                 mapping.save()
         messages.info(request,"New article has been created with title {}".format(form["title"]))
-        return HttpResponseRedirect('home')
+        return HttpResponseRedirect('/home')
     else:
         return(render(request,
                 "createArticle.html",
                 context={"check":"check"})
             )
 
-def view(request, id):
-    article = Articles.objects.filter(id = int(id))
-    tags = Article_Tag_Mapping.objects.filter(article_id = int(id))
+def view(request, title,slug):
+    article = Articles.objects.filter(title = title, slug = slug)
+    tags = Article_Tag_Mapping.objects.filter(article_id = article[0].id)
     tag_names = []
     for i in tags:
         tag_names.append(Tags.objects.filter(id = i.tag_id)[0].tag_name)
     return(render(request, "article_view.html", context = { "user_articles":article, "tags":tag_names}))
 
-def update(request, id):
-    article = Articles.objects.filter(id = int(id))
-    tags = Article_Tag_Mapping.objects.filter(article_id = int(id))
+def update(request, title,slug):
+    article = Articles.objects.filter(title = title, slug = slug)
+    tags = Article_Tag_Mapping.objects.filter(article_id = article[0].id)
     tag_names = ""
     for i in tags:
         tag_names = tag_names +Tags.objects.filter(id = i.tag_id)[0].tag_name +","
     return(render(request, "update_article.html", context = { "user_articles":article, "tags":tag_names}))
 
 
-def save(request,id):
+def save(request, title,slug):
     if request.method == "POST":
         form = (request.POST)
         tags = form["tags"].split(",")
+        id = Articles.objects.filter(title = title, slug = slug)[0].id
         Article_Tag_Mapping.objects.filter(article_id=id).delete()
         for i in tags:
             if i!='':
@@ -66,10 +70,9 @@ def save(request,id):
         Articles.objects.select_related().filter(id  = id).update(body=form['body'])
         Articles.objects.select_related().filter(id  = id).update(status=form['status'])
         messages.info(request,"Article has been updated with title {}".format(form["title"]))
-        return(HttpResponseRedirect('home'))
+        return(HttpResponseRedirect('/home'))
 
 def search(request):
-    #print("hello")
     if request.method == "POST":
         form = (request.POST)
         tag = form['Search By Tag']
@@ -92,4 +95,8 @@ def search(request):
                     for ids in range(1,len(article_tag_ids)):
                         article_search = article_search | Articles.objects.filter(id = article_tag_ids[ids].article_id, user_id=user_id)
         return(render(request, "search_view.html", context = { "article_search":article_search}))
-            
+
+
+def get_slug():
+    letters = string.ascii_lowercase
+    return(''.join(random.choice(letters) for i in range(5)))
