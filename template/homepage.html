@@ -1,3 +1,10 @@
+<!DOCTYPE html>
+<html>
+<style>
+    table, th, td {
+      border: 1px solid black;
+    }
+</style>
 <h1> welcome to the Blog Website</h1>
 
 <div> 
@@ -5,10 +12,39 @@
         <h4>{{message}}</h4>
     {% endfor %}
 </div>
-
+{% if user.is_authenticated %}
 <ul>
-    <li><a href="main">Home</a></li>
-    <li><a href="new_blog">Add a blog</a></li>
-    <li><a href="contact">Contact</a></li>
-    <li><a href="logout">Logout</a></li>
+    <li><a href="home">Home</a></li>
+    <li><a href= "create">Add a blog</a></li>
+    <li><a href="/logout">Logout</a></li>
   </ul>
+<hr>
+<form action="search/" method= "POST">
+    {% csrf_token %}
+    <label for="search_tag">Search By Tag</label><br>
+    <input type="text" id="seach_tag" name="Search By Tag"><br>
+    <label for="search_title">Search By Title</label><br>
+    <input type="text" id="search_title" name="Search By Title"><br>
+    <input type="submit" value="Submit">
+</form>
+<br><br><hr>
+<table>
+    {% if user_articles%}
+    <tr>
+        <th>Article Title</th>
+        <th>Click To View</th>
+        <th>Click To Edit</th>
+    </tr>
+    {% endif %}
+    {% for item in user_articles %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td><a href="/article/{{ item.id }}/">View</a></td>
+        <td><a href="/update/{{ item.id }}/">Click to Edit</a></td>
+    </tr>
+    </div>
+    {% endfor %}
+</table>
+{% endif %}
+</html>

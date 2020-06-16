@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+    {% if user.is_authenticated %}
+    <form action="save/" method= "POST">
+        {% csrf_token %}
+    <p> {{ user_articles.id }} </p>
+    {% for article in user_articles %}
+      <label for="title">Title</label><br>
+      <input type="text" id="title" name="title" value = "{{ article.title }}" required><br>
+      <label for="body">Body</label><br>
+      <input type="text" id="body" name="body"  value = "{{ article.body}}" required><br>
+      <label for="status">Status</label><br>
+      <select name="status" id="status" default = {{article.status}} >
+      <option value = "publish">Publish</option>
+      <option value = "draft">Draft</option>
+    {% endfor %}
+      </select><br>
+      <label for="tags">Tags</label><br>
+      <input type="text" id="tags" name="tags" value = "{{ tags }}"><br>
+
+      <input type="submit" value="Submit">
+    </form>
+    {% endif %}
+    </html>
