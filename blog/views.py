@@ -3,12 +3,9 @@ from blog.models import Articles ,Tags, ArticleTagMapping, Comments
 from django.contrib import messages
 from user.models import Users
 from django.http import HttpResponse, HttpResponseRedirect
-<<<<<<< HEAD
 from django.contrib.auth.models import User
 import random
 import string
-=======
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
 
 # Create your views here.
 def create(request):
@@ -36,46 +33,30 @@ def create(request):
                 context={"check":"check"})
             )
 
-<<<<<<< HEAD
 def view(request, title,slug):
     article = Articles.objects.filter(title = title, slug = slug)
     tags = ArticleTagMapping.objects.filter(article_id = article[0].id)
-=======
-def view(request, id):
-    article = Articles.objects.filter(id = int(id))
-    tags = Article_Tag_Mapping.objects.filter(article_id = int(id))
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
     tag_names = []
     for i in tags:
         tag_names.append(Tags.objects.filter(id = i.tag_id)[0].tag_name)
     comments = Comments.objects.filter(article_id = article[0].id)[:5]
     return(render(request, "article_view.html", context = { "user_articles":article, "tags":tag_names, "comments":comments}))
 
-<<<<<<< HEAD
 def update(request, title,slug):
     article = Articles.objects.filter(title = title, slug = slug)
     tags = ArticleTagMapping.objects.filter(article_id = article[0].id)
-=======
-def update(request, id):
-    article = Articles.objects.filter(id = int(id))
-    tags = Article_Tag_Mapping.objects.filter(article_id = int(id))
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
     tag_names = ""
     for i in tags:
         tag_names = tag_names +Tags.objects.filter(id = i.tag_id)[0].tag_name +","
     return(render(request, "update_article.html", context = { "user_articles":article, "tags":tag_names}))
 
 
-def save(request,id):
+def save(request,title,slug):
     if request.method == "POST":
         form = (request.POST)
         tags = form["tags"].split(",")
-<<<<<<< HEAD
         id = Articles.objects.filter(title = title, slug = slug)[0].id
         ArticleTagMapping.objects.filter(article_id=id).delete()
-=======
-        Article_Tag_Mapping.objects.filter(article_id=id).delete()
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
         for i in tags:
             if i!='':
                 query_set = Tags.objects.filter(tag_name= i )
@@ -147,7 +128,6 @@ def search(request):
             """
         print(article_search)
         return(render(request, "search_view.html", context = { "article_search":article_search}))
-<<<<<<< HEAD
         
 
 
@@ -166,6 +146,3 @@ def comment(request, title,slug):
 def get_slug():
     letters = string.ascii_lowercase
     return(''.join(random.choice(letters) for i in range(5)))
-=======
-            
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug

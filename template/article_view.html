@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-<<<<<<< HEAD
     {% if user.is_authenticated %}
     <ul>
         <li><a href="/home">Home</a></li>
@@ -14,8 +13,6 @@
       </ul>
     <hr>
     {% endif %}
-=======
->>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
     {% for article in user_articles %}
         <h2>Title:-</h3> {{ article.title }}
         <h3>Body:- </h3> {{ article.body}}
