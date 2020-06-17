@@ -78,7 +78,12 @@
     <div>
     <tr> 
         <td>{{ item.title }}</td>
+<<<<<<< HEAD
         <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
+=======
+        <td><a href="/article/{{ item.id }}/">View</a></td>
+        <td><a href="/update/{{ item.id }}/">Click to Edit</a></td>
+>>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
     </tr>
     </div>
 {% endfor %}

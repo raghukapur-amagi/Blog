@@ -1,11 +1,6 @@
 <!DOCTYPE html>
 <html>
     {% if user.is_authenticated %}
-  <ul>
-      <li><a href="/home">Home</a></li>
-      <li><a href="/logout">Logout</a></li>
-  </ul>  
-  <hr>
     <form action="save/" method= "POST">
         {% csrf_token %}
     <p> {{ user_articles.id }} </p>
@@ -26,4 +21,4 @@
       <input type="submit" value="Submit">
     </form>
     {% endif %}
-</html>
+    </html>

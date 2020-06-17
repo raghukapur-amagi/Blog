@@ -7,7 +7,7 @@
 </style>
 {% if user.is_authenticated %}
 <ul>
-    <li><a href="/home">Home</a></li>
+    <li><a href="home">Home</a></li>
     <li><a href="/logout">Logout</a></li>
   </ul>
   <hr>
@@ -26,8 +26,8 @@
     <div>
     <tr> 
         <td>{{ item.title }}</td>
-        <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
-        <td><a href="/update/{{ item.title }}-{{item.slug}}/">Click to Edit</a></td>
+        <td><a href="/article/{{ item.id }}/">View</a></td>
+        <td><a href="/update/{{ item.id }}/">Click to Edit</a></td>
     </tr>
     </div>
     {% endfor %}

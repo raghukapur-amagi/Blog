@@ -14,8 +14,11 @@ class Articles(BaseModel):
     user = models.ForeignKey('user.Users', on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     body = models.TextField()
+<<<<<<< HEAD
     slug = models.SlugField(max_length=140, unique=True)
     #slug = models.CharField(max_length= 10, unique = True)
+=======
+>>>>>>> parent of 07226ac... changed the article url formatting from localhost/article-id to localhost/article_title-article_slug
     status = models.CharField(
     choices = [('Publish',publish),('Draft',draft)],
         default = draft,
