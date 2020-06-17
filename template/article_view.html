@@ -1,19 +1,45 @@
 <!DOCTYPE html>
 <html>
-<ul>
-    <li><a href="/home">Home</a></li>
-    <li><a href="/logout">Logout</a></li>
-</ul>  
-<hr>
+    {% if user.is_authenticated %}
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul> <hr>
+    {% else %}
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+    <hr>
+    {% endif %}
     {% for article in user_articles %}
-    <h2>Title:-</h3> {{ article.title }}
-    <h3>Body:- </h3> {{ article.body}}
-    <h3>Status:- </h3> {{ article.status}}
-    <h3>Created At:</h3>  {{ article.created_at}}
+        <h2>Title:-</h3> {{ article.title }}
+        <h3>Body:- </h3> {{ article.body}}
+        {% if  user.is_authenticated %}
+        <h3>Status:- </h3> {{ article.status}}
+        {% endif %}
+        <h3>Created At:</h3>  {{ article.created_at}}
     {% endfor %}
 
     <h3>Tags :-</h3> 
     {% for tag in tags %}
-    <p>{{ tag }}</p>
+        <p>{{ tag }}</p>
     {% endfor %}
+    <hr>
+    <label for="comment"><h2>Feedback Section</h2></label>
+    <ul>
+    {% for comment in comments %}
+        <li> <b>Feedback:-</b>  {{comment.comments}} , <b>Feedback Date:-</b> {{comment.created_at}} </li>
+         
+    {% endfor %}
+    </ul>
+    {% if not user.is_authenticated %}
+    <form action="comment/" method= "POST">
+        {% csrf_token %}
+        <label for="submit"><b>Add Your Feedback</b></label><br>
+        <input type="text" id="comment" name="comment" placeholder = "Add a new comment"><br>
+        <input type="submit" value="Submit">
+    </form>
+    {% endif %}
 </html>

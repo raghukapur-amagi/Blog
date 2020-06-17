@@ -17,7 +17,7 @@ class SignUpForm(UserCreationForm):
                                 help_text = password_validation.password_validators_help_text_html(), 
                                 widget = forms.PasswordInput(attrs={'placeholder': 'Password'}))
     password2 = forms.CharField(label =_('Password Confirmation'),
-                                help_text = _('Just Enter the same password, for confirmation'), 
+                                help_text = password_validation.password_validators_help_text_html(), 
                                 widget = forms.PasswordInput(attrs={'placeholder': 'Password'}))
     username = forms.CharField(
         label=_('Username'),

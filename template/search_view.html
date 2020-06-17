@@ -5,6 +5,7 @@
       border: 1px solid black;
     }
 </style>
+{% if user.is_authenticated %}
 <ul>
     <li><a href="/home">Home</a></li>
     <li><a href="/logout">Logout</a></li>
@@ -14,7 +15,7 @@
 <h3> Search Results:- </h3>
 
 <table>
-    {% if article_search%}
+    {% if article_search %}
     <tr>
         <th>Article Title</th>
         <th>Click To View</th>
@@ -30,6 +31,32 @@
     </tr>
     </div>
     {% endfor %}
-    
+
+{% else %}
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/login">Login</a></li>
+        <li><a href="/register">Register</a></li>
+      </ul>
+    <hr>
+    <br><br>
+    <h3> Search Results:- </h3>
+
+<table>
+    {% if article_search %}
+    <tr>
+        <th>Article Title</th>
+        <th>Click To View</th>
+    </tr>
+    {% endif %}
+    {% for item in article_search %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
+    </tr>
+    </div>
+    {% endfor %}
+{% endif %}
 </table>
 </html>

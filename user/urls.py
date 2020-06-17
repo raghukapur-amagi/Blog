@@ -9,4 +9,5 @@ urlpatterns = [
     url('login', views.login_request, name='login'),
     url('logout', views.logout_request, name='logout'),
     url('home', views.homepage, name='homepage'),
+    #url('', views.homepage, name='homepage'),
 ]

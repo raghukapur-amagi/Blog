@@ -14,17 +14,35 @@ class Articles(BaseModel):
     user = models.ForeignKey('user.Users', on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     body = models.TextField()
-    slug = models.CharField(max_length= 10, unique = True)
+    slug = models.SlugField(max_length=140, unique=True)
+    #slug = models.CharField(max_length= 10, unique = True)
     status = models.CharField(
     choices = [('Publish',publish),('Draft',draft)],
         default = draft,
         max_length=20,
         )
+    
+    def __str__(self):
+        return self.title
+ 
+    def _get_unique_slug(self):
+        slug = slugify(self.title)
+        unique_slug = slug
+        num = 1
+        while Article.objects.filter(slug=unique_slug).exists():
+            unique_slug = '{}-{}'.format(slug, num)
+            num += 1
+        return unique_slug
+ 
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = self._get_unique_slug()
+        super().save(*args, **kwargs)
 
 class Tags(BaseModel):
     tag_name = models.CharField(max_length = 100, unique=True)
 
-class Article_Tag_Mapping(BaseModel):
+class ArticleTagMapping(BaseModel):
     article = models.ForeignKey('Articles', on_delete=models.CASCADE)
     tag = models.ForeignKey('Tags', on_delete=models.CASCADE)
 

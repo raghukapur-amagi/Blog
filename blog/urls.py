@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^update/(?P<title>[\w\s]+)-(?P<slug>[\w\s]+)/$', views.update, name='update'),
     url(r'^update/(?P<title>[\w\s]+)-(?P<slug>[\w\s]+)/save/$', views.save, name= 'save'),
     url(r'^search/', views.search, name= 'search'),
+    url(r'^article/(?P<title>[\w\s]+)-(?P<slug>[\w\s]+)/comment/$', views.comment, name='comment'),
+
 ]

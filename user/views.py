@@ -20,6 +20,9 @@ def homepage(request):
             return(render(request, "homepage.html", context = { "user_articles":user_articles}))
         else:
             return(render(request, "homepage.html", context = { "user_articles":[]}))
+    else:
+        user_articles = Articles.objects.filter(status = "publish").order_by("updated_at")[:5]
+        return(render(request, "homepage.html", context = {"user_articles":user_articles}))
 
 def register(request):
     if request.method == "POST":
@@ -34,7 +37,6 @@ def register(request):
             messages.info(request,"You are now logged in as {}".format(username))
             return HttpResponseRedirect('/home')
         else:
-            print(form.error_messages)
             for msg in form.error_messages:
                 messages.error(request,"{msg}: {form.error_messages[msg]}")
     else:
@@ -45,16 +47,13 @@ def register(request):
             )
 
 def login_request(request):
-    print("inside login request")
     if request.method=='POST':
         form = AuthenticationForm(request, data = request.POST)
-        print(form)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
             user = authenticate(username = username,password = password)
             if user:
-                print('user authenticated.')
                 login(request,user)
                 messages.info(request, "Logged in successfully as {}".format(username))
                 return(HttpResponseRedirect('/home'))
@@ -74,4 +73,4 @@ def login_request(request):
 def logout_request(request):
     logout(request)
     messages.info(request, "Logged out successfully")
-    return(HttpResponseRedirect('login/'))
+    return(HttpResponseRedirect('/home'))
