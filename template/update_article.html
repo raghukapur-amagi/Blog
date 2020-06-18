@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html>
+  <div> 
+    {% for message in messages %}
+        <h4>{{message}}</h4>
+    {% endfor %}
+    <hr>
+  </div>
     {% if user.is_authenticated %}
+    <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/logout">Logout</a></li>
+    </ul> <hr>
     <form action="save/" method= "POST">
         {% csrf_token %}
-    <p> {{ user_articles.id }} </p>
-    {% for article in user_articles %}
       <label for="title">Title</label><br>
-      <input type="text" id="title" name="title" value = "{{ article.title }}" required><br>
+      <input type="text" id="title" name="title" value = "{{ user_articles.title }}" required><br>
       <label for="body">Body</label><br>
-      <input type="text" id="body" name="body"  value = "{{ article.body}}" required><br>
+      <input type="text" id="body" name="body"  value = "{{ user_articles.body}}" required><br>
       <label for="status">Status</label><br>
-      <select name="status" id="status" default = {{article.status}} >
+      <select name="status" id="status" default = {{user_articles.status}} >
       <option value = "publish">Publish</option>
       <option value = "draft">Draft</option>
-    {% endfor %}
+
       </select><br>
       <label for="tags">Tags</label><br>
       <input type="text" id="tags" name="tags" value = "{{ tags }}"><br>
+      <input type="hidden" name="prev" value="{{ request.path }}">
 
       <input type="submit" value="Submit">
     </form>

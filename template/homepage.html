@@ -21,10 +21,8 @@
     </ul>
     <form action="search/" method= "POST">
         {% csrf_token %}
-        <label for="search_tag">Search By Tag</label><br>
-        <input type="text" id="seach_tag" name="Search By Tag"><br>
-        <label for="search_title">Search By Title</label><br>
-        <input type="text" id="search_title" name="Search By Title"><br>
+        <label for="search">Search By Tag/Title</label><br>
+        <input type="text" id="seach" name="search"><br>
         <input type="submit" value="Submit">
     </form>
     <br><hr><br>
@@ -32,6 +30,7 @@
     {% if user_articles%}
     <tr>
         <th>Article Title</th>
+        <th>Date of Update</th>
         <th>Click To View</th>
         <th>Click To Edit</th>
     </tr>
@@ -40,8 +39,9 @@
     <div>
     <tr> 
         <td>{{ item.title }}</td>
-        <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
-        <td><a href="/update/{{ item.title }}-{{item.slug}}/">Click to Edit</a></td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{item.slug}}/">View</a></td>
+        <td><a href="/update/{{item.slug}}/">Click to Edit</a></td>
     </tr>
     </div>
     {% endfor %}
@@ -56,14 +56,8 @@
 <hr>
 <form action="search/" method= "POST">
     {% csrf_token %}
-    <label for="search_tag">Search By Tag</label><br>
-    <input type="text" id="seach_tag" name="Search By Tag"><br>
-    <label for="search_title">Search By Title</label><br>
-    <input type="text" id="search_title" name="Search By Title"><br>
-    <!--
-    <label for="search_user">Search By Username</label><br>
-    <input type="text" id="search_user" name="Search By Username"><br>
-    -->
+    <label for="search">Search By Tag/Title</label><br>
+    <input type="text" id="seach" name="search"><br>
     <input type="submit" value="Submit">
 </form>
 <br><br><hr>
@@ -71,6 +65,7 @@
 <table>
     <tr>
         <th>Article Title</th>
+        <th>Date of Update</th>
         <th>Click To View</th>
     </tr>
 {% endif %}
@@ -78,7 +73,8 @@
     <div>
     <tr> 
         <td>{{ item.title }}</td>
-        <td><a href="/article/{{ item.title }}-{{item.slug}}/">View</a></td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{item.slug}}/">View</a></td>
     </tr>
     </div>
 {% endfor %}

@@ -12,11 +12,12 @@ from blog.models import Articles
 
 def homepage(request):
     if request.user.is_authenticated:
-        user_id = Users.objects.filter(user_id=request.user.id)
-        print(user_id)
-        if user_id.exists():
-            print(user_id[0].id)
-            user_articles = Articles.objects.filter(user_id=user_id[0].id)[:5]
+        try:
+            user_id = Users.objects.get(user_id=request.user.id).id
+        except Users.DoesNotExist:
+            user_id = None
+        if user_id:
+            user_articles = Articles.objects.filter(user_id=user_id)[:5]
             return(render(request, "homepage.html", context = { "user_articles":user_articles}))
         else:
             return(render(request, "homepage.html", context = { "user_articles":[]}))
