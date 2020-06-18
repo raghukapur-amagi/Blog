@@ -5,12 +5,9 @@
       border: 1px solid black;
     }
 </style>
+{% include 'messages.html' %}
+{% include 'menubar.html' %}
 {% if user.is_authenticated %}
-<ul>
-    <li><a href="/home">Home</a></li>
-    <li><a href="/logout">Logout</a></li>
-  </ul>
-  <hr>
 
 <h3> Search Results:- </h3>
 
@@ -35,13 +32,6 @@
     {% endfor %}
 
 {% else %}
-    <ul>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/register">Register</a></li>
-      </ul>
-    <hr>
-    <br><br>
     <h3> Search Results:- </h3>
 
 <table>

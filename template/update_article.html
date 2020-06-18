@@ -1,16 +1,9 @@
 <!DOCTYPE html>
 <html>
-  <div> 
-    {% for message in messages %}
-        <h4>{{message}}</h4>
-    {% endfor %}
-    <hr>
-  </div>
+  {% include 'messages.html' %}
+  {% include 'menubar.html' %}
     {% if user.is_authenticated %}
-    <ul>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul> <hr>
+    <hr>
     <form action="save/" method= "POST">
         {% csrf_token %}
       <label for="title">Title</label><br>

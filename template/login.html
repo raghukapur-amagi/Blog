@@ -1,11 +1,6 @@
 {% block title %}Login{% endblock %}
 
-<div> 
-  {% for message in messages %}
-      <h4>{{message}}</h4>
-  {% endfor %}
-</div>
-
+{% include 'messages.html' %}
 {% block content %}
   <h2>Login</h2>
   <form method="post">

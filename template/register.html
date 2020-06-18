@@ -1,10 +1,6 @@
 {% block title %}Register Here{% endblock %}
 
-<div> 
-    {% for message in messages %}
-        <h4>{{message}}</h4>
-    {% endfor %}
-</div>
+{% include 'messages.html' %}
 {% block content %}
   <h2>Register</h2>
   <form method="POST" >

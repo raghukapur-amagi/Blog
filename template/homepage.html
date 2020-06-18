@@ -1,3 +1,5 @@
+
+{% block body %}
 <!DOCTYPE html>
 <html>
 <style>
@@ -5,27 +7,16 @@
       border: 1px solid black;
     }
 </style>
-<h1> welcome to the Blog Website</h1>
-
-<div> 
-    {% for message in messages %}
-        <h4>{{message}}</h4>
-    {% endfor %}
-</div>
-
+{% include 'messages.html' %}
+{% include 'menubar.html' %}
+<form action="search/" method= "POST">
+    {% csrf_token %}
+    <label for="search">Search By Tag/Title</label><br>
+    <input type="text" id="seach" name="search"><br>
+    <input type="submit" value="Submit">
+</form>
+<br><hr><br>
 {% if user.is_authenticated %}
-    <ul> 
-        <li><a href="/home">Home</a></li>
-        <li><a href="/create">Create a new Article</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul>
-    <form action="search/" method= "POST">
-        {% csrf_token %}
-        <label for="search">Search By Tag/Title</label><br>
-        <input type="text" id="seach" name="search"><br>
-        <input type="submit" value="Submit">
-    </form>
-    <br><hr><br>
 <table>
     {% if user_articles%}
     <tr>
@@ -48,19 +39,6 @@
 </table>
 
 {% else %}
-<ul>
-    <li><a href="/home">Home</a></li>
-    <li><a href="/login">Login</a></li>
-    <li><a href="/register">Register</a></li>
-  </ul>
-<hr>
-<form action="search/" method= "POST">
-    {% csrf_token %}
-    <label for="search">Search By Tag/Title</label><br>
-    <input type="text" id="seach" name="search"><br>
-    <input type="submit" value="Submit">
-</form>
-<br><br><hr>
 {% if user_articles%}
 <table>
     <tr>
@@ -81,3 +59,4 @@
 </table>
 {% endif %}
 </html>
+{% endblock %}

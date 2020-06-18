@@ -1,24 +1,8 @@
 <!DOCTYPE html>
 <html>
-    {% if user.is_authenticated %}
-    <ul>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/logout">Logout</a></li>
-    </ul> <hr>
-    {% else %}
-    <ul>
-        <li><a href="/home">Home</a></li>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/register">Register</a></li>
-      </ul>
-    <hr>
-    {% endif %}
-    <div> 
-        {% for message in messages %}
-            <h4>{{message}}</h4>
-        {% endfor %}
-        <hr>
-      </div>
+    {% include 'messages.html' %}
+    {% include 'menubar.html' %}
+
     <h2>Title:-</h3> {{ user_articles.title }}
     <h3>Body:- </h3> {{ user_articles.body}}
     {% if  user.is_authenticated %}
@@ -30,19 +14,5 @@
     {% for tag in tags %}
         <p>{{ tag }}</p>
     {% endfor %}
-    <hr>
-    <label for="comment"><h2>Feedback Section</h2></label>
-    <ul>
-    {% for comment in comments %}
-        <li> <b>Feedback:-</b>  {{comment.comments}} , <b>Feedback Date:-</b> {{comment.created_at}} </li>
-         
-    {% endfor %}
-    </ul>
-    <form action="comment/" method= "POST">
-        {% csrf_token %}
-        <label for="submit"><b>Add Your Feedback</b></label><br>
-        <input type="text" id="comment" name="comment" placeholder = "Add a new comment"><br>
-        <input type="hidden" name="prev" value="{{ request.path }}">
-        <input type="submit" value="Submit">
-    </form>
+    {% include 'comments.html' %}
 </html>
