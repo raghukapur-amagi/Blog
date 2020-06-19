@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<style>
+    table, th, td {
+      border: 1px solid black;
+    }
+</style>
+{% include 'messages.html' %}
+{% include 'menubar.html' %}
+{% if user.is_authenticated %}
+
+<h3> Search Results:- </h3>
+
+<table>
+    {% if article_search %}
+    <tr>
+        <th>Article Title</th>
+        <th>Date of Update</th>
+        <th>Click To View</th>
+        <th>Click To Edit</th>
+    </tr>
+    {% endif %}
+    {% for item in article_search %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{ item.slug }}/">View</a></td>
+        <td><a href="/update/{{ item.slug }}/">Click to Edit</a></td>
+    </tr>
+    </div>
+    {% endfor %}
+
+{% else %}
+    <h3> Search Results:- </h3>
+
+<table>
+    {% if article_search %}
+    <tr>
+        <th>Article Title</th>
+        <th>Date of Update</th>
+        <th>Click To View</th>
+    </tr>
+    {% endif %}
+    {% for item in article_search %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{item.slug}}/">View</a></td>
+    </tr>
+    </div>
+    {% endfor %}
+{% endif %}
+</table>
+</html>

@@ -1,0 +1,62 @@
+
+{% block body %}
+<!DOCTYPE html>
+<html>
+<style>
+    table, th, td {
+      border: 1px solid black;
+    }
+</style>
+{% include 'messages.html' %}
+{% include 'menubar.html' %}
+<form action="search/" method= "POST">
+    {% csrf_token %}
+    <label for="search">Search By Tag/Title</label><br>
+    <input type="text" id="seach" name="search"><br>
+    <input type="submit" value="Submit">
+</form>
+<br><hr><br>
+{% if user.is_authenticated %}
+<table>
+    {% if user_articles%}
+    <tr>
+        <th>Article Title</th>
+        <th>Date of Update</th>
+        <th>Click To View</th>
+        <th>Click To Edit</th>
+    </tr>
+    {% endif %}
+    {% for item in user_articles %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{item.slug}}/">View</a></td>
+        <td><a href="/update/{{item.slug}}/">Click to Edit</a></td>
+    </tr>
+    </div>
+    {% endfor %}
+</table>
+
+{% else %}
+{% if user_articles%}
+<table>
+    <tr>
+        <th>Article Title</th>
+        <th>Date of Update</th>
+        <th>Click To View</th>
+    </tr>
+{% endif %}
+{% for item in user_articles %}
+    <div>
+    <tr> 
+        <td>{{ item.title }}</td>
+        <td>{{ item.updated_at }}</td>
+        <td><a href="/article/{{item.slug}}/">View</a></td>
+    </tr>
+    </div>
+{% endfor %}
+</table>
+{% endif %}
+</html>
+{% endblock %}

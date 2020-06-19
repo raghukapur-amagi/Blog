@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    {% include 'messages.html' %}
+    {% include 'menubar.html' %}
+
+    <h2>Title:-</h3> {{ user_articles.title }}
+    <h3>Body:- </h3> {{ user_articles.body}}
+    {% if  user.is_authenticated %}
+    <h3>Status:- </h3> {{ user_articles.status}}
+    {% endif %}
+    <h3>Created At:</h3>  {{ user_articles.created_at}}
+
+    <h3>Tags :-</h3> 
+    {% for tag in tags %}
+        <p>{{ tag }}</p>
+    {% endfor %}
+    {% include 'comments.html' %}
+</html>
