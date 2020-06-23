@@ -15,7 +15,6 @@ class Articles(BaseModel):
     user = models.ForeignKey('user.Users', on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     body = models.TextField()
-    #slug = models.CharField(max_length= 10, unique = True)
     slug = models.SlugField(max_length=140, unique=True)
     status = models.CharField(
     choices = [('Publish', PUBLISH),('Draft', DRAFT)],
@@ -39,7 +38,6 @@ class Articles(BaseModel):
         return unique_slug
  
     def save(self, *args, **kwargs):
-        print("inside save function")
         if not self.slug:
             self.slug = self._get_unique_slug()
         super().save(*args, **kwargs)

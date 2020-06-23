@@ -2,8 +2,114 @@ from django.shortcuts import render
 from blog.models import Articles ,Tags, ArticleTagMapping, Comments
 from django.contrib import messages
 from user.models import Users
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.contrib.auth.models import User
+from rest_framework.parsers import JSONParser
+from .serializers import ArticleSerializer, TagSerializer , CommentSerializer
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def get_articles(request):
+    if request.method == "GET":
+        articles = Articles.objects.all()
+        serializer = ArticleSerializer(articles, many = True)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "POST":
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data, status = 201))
+        return(JsonResponse(serializer.errors, status = 400))
+
+@csrf_exempt
+def get_article_detail(request,pk):
+    try:
+        article = Articles.objects.get(pk = int(pk))
+    except Articles.DoesNotExist:
+        return HttpResponse(status = 404)
+
+    if request.method == "GET":
+        serializer = ArticleSerializer(article)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "PUT":
+        data = JSONParser().parse(request)
+        serializer = ArticleSerializer(article, data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data))
+        return(JsonResponse(serializer.errors, status = 400))
+    elif request.method =="DELETE":
+        article.delete()
+        return HttpResponse(status = 204)
+
+@csrf_exempt
+def get_tags(request):
+    if request.method == "GET":
+        tags = Tags.objects.all()
+        serializer = TagSerializer(tags, many = True)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "POST":
+        data = JSONParser().parse(request)
+        serializer = TagSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data, status = 201))
+        return(JsonResponse(serializer.errors, status = 400))
+
+@csrf_exempt
+def get_tag_detail(request,pk):
+    try:
+        tag = Tags.objects.get(pk = int(pk))
+    except Tags.DoesNotExist:
+        return HttpResponse(status = 404)
+    if request.method == "GET":
+        serializer = TagSerializer(tag)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "PUT":
+        data = JSONParser().parse(request)
+        serializer = TagSerializer(tag, data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data))
+        return(JsonResponse(serializer.errors, status = 400))
+    elif request.method =="DELETE":
+        tag.delete()
+        return HttpResponse(status = 204)
+
+@csrf_exempt
+def get_comments(request):
+    if request.method == "GET":
+        comments = Comments.objects.all()
+        serializer = CommentSerializer(comments, many = True)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "POST":
+        data = JSONParser().parse(request)
+        serializer = CommentSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data, status = 201))
+        return(JsonResponse(serializer.errors, status = 400))
+
+@csrf_exempt
+def get_comment_detail(request,pk):
+    try:
+        comment = Comments.objects.get(pk = int(pk))
+    except Comments.DoesNotExist:
+        return HttpResponse(status = 404)
+    if request.method == "GET":
+        serializer = CommentSerializer(tag)
+        return(JsonResponse(serializer.data, safe = False))
+    elif request.method == "PUT":
+        data = JSONParser().parse(request)
+        serializer = CommentSerializer(comment, data = data)
+        if serializer.is_valid():
+            serializer.save()
+            return(JsonResponse(serializer.data))
+        return(JsonResponse(serializer.errors, status = 400))
+    elif request.method =="DELETE":
+        comment.delete()
+        return HttpResponse(status = 204)
 
 # Create your views here.
 def create(request):
@@ -75,7 +181,7 @@ def search(request):
         form = (request.POST)
         search = form['search']
         article_search = []
-        articles = Articles.objects.filter(title = search).order_by('-updated_at')
+        articles = Articles.objects.filter(title = search)
         if articles.exists():
                 article_search = articles
         try:
@@ -83,7 +189,7 @@ def search(request):
         except Tags.DoesNotExist:
             tag = None
         if tag is not None:
-            articles = Articles.objects.select_related().filter(articletagmapping__tag_id = tag).order_by('-updated_at')
+            articles = Articles.objects.select_related().filter(articletagmapping__tag_id = tag)
             if articles.exists():
                 if article_search:
                     article_search = article_search | articles
