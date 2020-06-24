@@ -11,7 +11,8 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def get_articles(request):
     if request.method == "GET":
-        articles = Articles.objects.all()
+        start, end = entriesPerPage(request)
+        articles = Articles.objects.filter()[start:end]
         serializer = ArticleSerializer(articles, many = True)
         return(JsonResponse(serializer.data, safe = False))
     elif request.method == "POST":
@@ -46,7 +47,8 @@ def get_article_detail(request,pk):
 @csrf_exempt
 def get_tags(request):
     if request.method == "GET":
-        tags = Tags.objects.all()
+        start, end = entriesPerPage(request)
+        tags = Tags.objects.filter()[start:end]
         serializer = TagSerializer(tags, many = True)
         return(JsonResponse(serializer.data, safe = False))
     elif request.method == "POST":
@@ -80,7 +82,8 @@ def get_tag_detail(request,pk):
 @csrf_exempt
 def get_comments(request):
     if request.method == "GET":
-        comments = Comments.objects.all()
+        start, end = entriesPerPage(request)
+        comments = Comments.objects.filter()[start:end]
         serializer = CommentSerializer(comments, many = True)
         return(JsonResponse(serializer.data, safe = False))
     elif request.method == "POST":
@@ -210,3 +213,16 @@ def comment(request, slug):
         messages.info(request,"Your comment has been successfully added")
         prev = request.POST.get('prev', '/')
         return(HttpResponseRedirect(prev))
+
+
+def entriesPerPage(request):
+    params = request.GET
+    page_size = 20
+    start_page = 1
+    if "page_size" in params:
+        page_size = int(params["page_size"])
+    if "start_page" in params:
+        start_page = int(params["start_page"])
+    start = (start_page-1)*page_size
+    end =  (start_page)*page_size
+    return(start, end)
