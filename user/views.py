@@ -12,6 +12,8 @@ from rest_framework.parsers import JSONParser
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserProfileSerializer
+import logging
+logger = logging.getLogger('django')
 
 User = get_user_model()
 
@@ -21,12 +23,15 @@ def login_user(request):
         if request.user.is_authenticated:
             return HttpResponse(status = 400)
         data = JSONParser().parse(request)
-        user = authenticate(username = data["username"],password = data["password"])
+        username = data["username"]
+        user = authenticate(username = username,password = data["password"])
         if user:
                 login(request,user)
+                logger.info("User with username {} has been successfully logged in".format(username))
                 return(HttpResponse(status = 200))
         else:
-            return(HttpResponse(status= 401))
+            logger.info("User with username {} could not be logged in".format(username))
+            return(JsonResponse({"Error":"User with username {} could not be logged in".format(username)},status= 401))
 
 @csrf_exempt
 def logout_user(request):
@@ -49,7 +54,9 @@ def register_user(request):
             serializer = UserProfileSerializer(data = data)
             if serializer.is_valid():
                 serializer.save()
+                logger.info("new user has been added with username {}".format(data["username"]))
                 return(JsonResponse(data, status = 201))
+        logger.error("user could not be added with data {}".format(data))
         return(JsonResponse(serializer.errors, status = 400))
 
 def homepage(request):
@@ -84,9 +91,11 @@ def register(request):
             profile = Users(user_id= current_user.id, bio=form.cleaned_data.get('Bio'))
             profile.save()
             messages.info(request,"You are now logged in as {}".format(username))
+            logger.info("new user has been added with username {}".format(username))
             return(HttpResponseRedirect('/home'))
         else:
             for msg in form.error_messages:
+                logger.error("Error with the registration form {msg}: {form.error_messages[msg]}")
                 messages.error(request,"{msg}: {form.error_messages[msg]}")
             return HttpResponseRedirect('/home')
     else:
@@ -105,9 +114,11 @@ def login_request(request):
             user = authenticate(username = username,password = password)
             if user:
                 login(request,user)
+                logger.info("{username} has logged in.")
                 messages.info(request, "Logged in successfully as {}".format(username))
                 return(HttpResponseRedirect('/home'))
             else:
+                logger.error("Wrong Username: {username} and Password {password}")
                 messages.error(request, "Wrong username and password")
                 return(HttpResponseRedirect('login'))
         else:

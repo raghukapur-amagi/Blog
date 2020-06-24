@@ -136,3 +136,27 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+LOGGING ={
+    'version':1,
+    'loggers':{
+        'django':{
+            'handlers':['file'],
+            'level':'INFO'
+        }
+    },
+    'handlers':{
+        'file':{
+            'level':'INFO',
+            'class': 'logging.FileHandler',
+            'filename':'/var/log/blog_application/debug.log',
+            'formatter':'simpleRe',
+        }
+    },
+    'formatters':{
+        'simpleRe': {
+            'format': '{asctime} {levelname} {module} {message}',
+            'style': '{',
+        }
+
+    }
+}

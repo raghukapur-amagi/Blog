@@ -2,10 +2,10 @@ from .models import Articles, Tags, Comments
 from rest_framework import serializers
 
 class ArticleSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only = True)
+    user_id = serializers.IntegerField()
     class Meta:
         model = Articles
-        fields = [ 'id', 'title', 'body', 'status']
+        fields = [ 'user_id', 'title', 'body', 'status']
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
