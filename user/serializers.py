@@ -10,7 +10,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = Users
         fields = ('bio', 'user_id')
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email','username','first_name', 'last_name', 'password')

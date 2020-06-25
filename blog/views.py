@@ -5,146 +5,175 @@ from user.models import Users
 from django.http import HttpResponse, HttpResponseRedirect,JsonResponse
 from django.contrib.auth.models import User
 from rest_framework.parsers import JSONParser
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from .serializers import ArticleSerializer, TagSerializer , CommentSerializer
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
 import logging 
+
 logger = logging.getLogger('django')
 
 @csrf_exempt
+@api_view(['POST','GET', ])
 def get_articles(request):
     if request.method == "GET":
-        start, end = entriesPerPage(request)
-        articles = Articles.objects.filter()[start:end]
+        page_size, page = entriesPerPage(request)
+        articles = Articles.objects.all()
+        paginator = Paginator(articles, page_size)
+        articles = paginator.get_page(page)
         serializer = ArticleSerializer(articles, many = True)
-        return(JsonResponse(serializer.data, safe = False))
+        return(Response(serializer.data, status = status.HTTP_200_OK))
     elif request.method == "POST":
-        data = JSONParser().parse(request)
-        serializer = ArticleSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-            logger.info("Article has been successfully added with data {}".format(data))
-            return(JsonResponse(serializer.data, status = 201))
-        logger.error("Article addition failed with data {}".format(data))
-        return(HttpResponse(status= 400))
-    return(HttpResponse(status = 404))
+        article_data = JSONParser().parse(request)
+        article_serializer = ArticleSerializer(data = article_data)
+        if article_serializer.is_valid():
+            article_serializer.save()
+            logger.info("Article has been successfully added with data {}".format(article_data))
+            return(Response(article_serializer.data, status = status.HTTP_201_CREATED))
+        logger.error("Article addition failed with data {}".format(article_data))
+        return(Response(article_serializer.errors,status= status.HTTP_400_BAD_REQUEST))
+    return(Response({"error":"Invalid Request Type"},status = status.HTTP_400_BAD_REQUEST))
 
 @csrf_exempt
+@api_view(['GET','PUT','DELETE',])
 def get_article_detail(request,pk):
-    data = JSONParser().parse(request)
     try:
-        article = Articles.objects.get(pk = int(pk), user_id = data["user_id"])
+        article = Articles.objects.get(pk = int(pk))
     except Articles.DoesNotExist:
-        logger.error("Article is not mapped with the userID or article does not exist with article id {}, corrosponding data {}".format(pk,data))
-        return(JsonResponse({"Error":"Article is not mapped with the userID or article Not foound"}, status= 404))
+        logger.error("Article does not exist with article id {}".format(pk))
+        return(Response({"error":"Article  Not found"}, status= status.HTTP_404_NOT_FOUND))
     if request.method == "GET":
-        serializer = ArticleSerializer(article)
-        return(JsonResponse(serializer.data, safe = False))
+        article_serializer = ArticleSerializer(article)
+        return(Response(article_serializer.data, status = status.HTTP_200_OK))
     elif request.method == "PUT":
+        article_data = JSONParser().parse(request)
+        try:
+            article = Articles.objects.get(pk = int(pk), user_id = article_data["user_id"])
+        except Articles.DoesNotExist:
+            logger.error("Article is not mapped with the userID or article does not exist with article id {}, corrosponding data {}".format(pk,article_data))
+            return(Response({"error":"Article is not mapped with the userID or article Not foound"}, status= status.HTTP_404_NOT_FOUND))
         if article:
-            serializer = ArticleSerializer(article, data = data)
-            if serializer.is_valid():
-                serializer.save()
-                logger.info("Article has been successfully updated with data {}".format(data))
-                return(JsonResponse(serializer.data, status = 200))
+            article_serializer = ArticleSerializer(article, data = article_data)
+            if article_serializer.is_valid():
+                article_serializer.save()
+                logger.info("Article has been successfully updated with data {}".format(article_data))
+                return(Response(article_serializer.data, status = status.HTTP_200_OK))
             else:
-                logger.error("Article updation failed for data {}".format(data))
-                return(HttpResponse(status= 400))
+                logger.error("Article updation failed for data {}".format(article_data))
+                return(Response({"error":"Article updation failed"}, status= status.HTTP_400_BAD_REQUEST))
     elif request.method =="DELETE":
+        article_data = JSONParser().parse(request)
+        try:
+            article = Articles.objects.get(pk = int(pk), user_id = article_data["user_id"])
+        except Articles.DoesNotExist:
+            logger.error("Article is not mapped with the userID or article does not exist with article id {}, corrosponding data {}".format(pk,article_data))
+            return(Response({"error":"Article is not mapped with the userID or article Not found"}, status= status.HTTP_404_NOT_FOUND))
         article.delete()
-        return HttpResponse(status = 204)
+        return Response({"info":"Article has successfully been deleted"},status = status.HTTP_204_NO_CONTENT)
 
 @csrf_exempt
+@api_view(['POST','GET', ])
 def get_tags(request):
     if request.method == "GET":
-        start, end = entriesPerPage(request)
-        tags = Tags.objects.filter()[start:end]
-        serializer = TagSerializer(tags, many = True)
-        return(JsonResponse(serializer.data, safe = False))
+        page_size, page = entriesPerPage(request)
+        tags = Tags.objects.all()
+        paginator = Paginator(tags, page_size)
+        tags = paginator.get_page(page)
+        tag_serializer = TagSerializer(tags, many = True)
+        return(Response(tag_serializer.data, status = status.HTTP_200_OK))
     elif request.method == "POST":
-        data = JSONParser().parse(request)
-        data["tag_name"] = data["tag_name"].lower().strip()
-        serializer = TagSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-            logger.info("Tag:{} has been successfully added".format(data["tag_name"]))
-            return(JsonResponse(serializer.data, status = 201))
-        logger.error("Adding tag: {} to the database failed".format(data["tag_name"]))
-        return(JsonResponse({"Error":"Adding tags to the database Failed"},status= 400))
+        tag_data = JSONParser().parse(request)
+        tag_data["tag_name"] = tag_data["tag_name"].lower().strip()
+        tag_serializer = TagSerializer(data = tag_data)
+        if tag_serializer.is_valid():
+            tag_serializer.save()
+            logger.info("Tag:{} has been successfully added".format(tag_data["tag_name"]))
+            return(Response(tag_serializer.data, status = status.HTTP_201_CREATED))
+        logger.error("Adding tag: {} to the database failed".format(tag_data["tag_name"]))
+        return(Response({"error":"Adding tags to the database Failed"}, status= status.HTTP_400_BAD_REQUEST))
 
 @csrf_exempt
+@api_view(['GET','PUT','DELETE', ])
 def get_tag_detail(request,pk):
     try:
         tag = Tags.objects.get(pk = int(pk))
     except Tags.DoesNotExist:
         logger.error("Tag with tagID {} does not exist".format(pk))
-        return JsonResponse({"Error":"Tag does not exist"},status = 404)
+        return Response({"error":"Tag does not exist"},status = status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
-        serializer = TagSerializer(tag)
-        return(JsonResponse(serializer.data, safe = False))
+        tag_serializer = TagSerializer(tag)
+        return(Response(tag_serializer.data, status = status.HTTP_200_OK))
     elif request.method == "PUT":
-        data = JSONParser().parse(request)
-        serializer = TagSerializer(tag, data = data)
-        if serializer.is_valid():
-            serializer.save()
-            logger.info("Tag with details {} has been updated".format(data))
-            return(JsonResponse(serializer.data, status =200))
-        logger.error("Tag updation failed for tag data {}".format(data))
-        return(JsonResponse({"Error":"Tag updation failed"},status= 400))
+        tag_data = JSONParser().parse(request)
+        tag_serializer = TagSerializer(tag, data = tag_data)
+        if tag_serializer.is_valid():
+            tag_serializer.save()
+            logger.info("Tag with details {} has been updated".format(tag_data))
+            return(Response(tag_serializer.data, status = status.HTTP_200_OK))
+        logger.error("Tag updation failed for tag data {}".format(tag_data))
+        return(Response({"error":"Tag updation failed"},status = status.HTTP_400_BAD_REQUEST))
     elif request.method =="DELETE":
         tag.delete()
-        return HttpResponse(status = 204)
+        return Response({"info":"Tag has been added successfully"}, status = status.HTTP_204_NO_CONTENT)
 
 @csrf_exempt
+@api_view(['POST','GET',])
 def get_comments(request):
     if request.method == "GET":
-        start, end = entriesPerPage(request)
-        comments = Comments.objects.filter()[start:end]
-        serializer = CommentSerializer(comments, many = True)
-        return(JsonResponse(serializer.data, safe = False))
+        page_size, page = entriesPerPage(request)
+        comments = Comments.objects.all()
+        paginator = Paginator(comments, page_size)
+        comments = paginator.get_page(page)
+        comment_serializer = CommentSerializer(comments, many = True)
+        return(Response(comment_serializer.data, status = status.HTTP_200_OK))
     elif request.method == "POST":
-        data = JSONParser().parse(request)
+        comment_data = JSONParser().parse(request)
         try:
-            article = Articles.objects.get(id = data["article_id"])
+            article = Articles.objects.get(id = comment_data["article_id"])
         except Articles.DoesNotExist:
-            logger.error("Article with id {} does not exist for comment to be added".format(data["article_id"]))
-            return(JsonResponse({"Error":"Article does not exist"}, status = 404))
+            logger.error("Article with id {} does not exist for comment to be added".format(comment_data["article_id"]))
+            return(Response({"error":"Article does not exist"}, status = status.HTTP_404_NOT_FOUND))
         if article:
-            serializer = CommentSerializer(data = data)
-            if serializer.is_valid():
-                serializer.save()
-                logger.info("Comment has been successfully added with data {}".format(data))
-                return(JsonResponse(serializer.data, status = 201))
-            logger.error("Comment addition failed with data {}".format(data))
-            return(JsonResponse({"Error":"Comment addition failed"},status= 400))
+            comment_serializer = CommentSerializer(data = comment_data)
+            if comment_serializer.is_valid():
+                comment_serializer.save()
+                logger.info("Comment has been successfully added with data {}".format(comment_data))
+                return(Response(comment_serializer.data, status = status.HTTP_201_CREATED))
+            logger.error("Comment addition failed with data {}".format(comment_data))
+            return(Response({"error":"Comment addition failed"},status = status.HTTP_400_BAD_REQUEST))
 
 @csrf_exempt
+@api_view(['GET','PUT','DELETE', ])
 def get_comment_detail(request,pk):
     try:
         comment = Comments.objects.get(pk = int(pk))
     except Comments.DoesNotExist:
         logger.error("Comment with id {} does not exist.".format(pk))
-        return JsonResponse({"Error":"Comment with id {} does not exist.".format(pk)},status = 404)
+        return Response({"error":"Comment with id {} does not exist.".format(pk)}, status = status.HTTP_404_NOT_FOUND)
     if request.method == "GET":
-        serializer = CommentSerializer(tag)
-        return(JsonResponse(serializer.data, safe = False))
+        comment_serializer = CommentSerializer(comment)
+        return(Response(comment_serializer.data, status = status.HTTP_200_OK))
     elif request.method == "PUT":
-        data = JSONParser().parse(request)
+        comment_data = JSONParser().parse(request)
         try:
-            comment = Comments.objects.get(pk = int(pk),article_id = data["article_id"])
+            comment = Comments.objects.get(pk = int(pk),article_id = comment_data["article_id"])
         except Comments.DoesNotExist:
             logger.error("Comment with id {} does not exist or comment id and Article Id do not map".format(pk))
-            return JsonResponse({"Error":"Comment with id {} does not exist or comment id and Article Id do not map".format(pk)},status = 404)
-        serializer = CommentSerializer(comment, data = data)
-        if serializer.is_valid():
-            serializer.save()
-            logger.info("Comment has been updated for data {}".format(data))
-            return(JsonResponse(serializer.data, status = 200))
-        logger.error("Comment updation failed for data {}".format(data))
-        return(JsonResponse({"Error":"Comment updation failed for data {}".format(data)},status= 400))
+            return Response({"error":"Comment with id {} does not exist or comment id and Article Id do not map".format(pk)},status = status.HTTP_404_NOT_FOUND)
+        comment_serializer = CommentSerializer(comment, data = comment_data)
+        if comment_serializer.is_valid():
+            comment_serializer.save()
+            logger.info("Comment has been updated for data {}".format(comment_data))
+            return(Response(comment_serializer.data, status = status.HTTP_200_OK))
+        logger.error("Comment updation failed for data {}".format(comment_data))
+        return(Response({"Error":"Comment updation failed for data {}".format(comment_data)}, status= status.HTTP_400_BAD_REQUEST))
     elif request.method =="DELETE":
+        comment_data = JSONParser().parse(request)
         comment.delete()
-        logger.info("Comment has been updated for data {}".format(data))
-        return HttpResponse(status = 204)
+        logger.info("Comment has been deleted for data {}".format(comment_data))
+        return Response({"info":"Comment has been deleted"}, status = status.HTTP_204_NO_CONTENT)
 
 # Create your views here.
 def create(request):
@@ -281,11 +310,9 @@ def comment(request, slug):
 def entriesPerPage(request):
     params = request.GET
     page_size = 20
-    start_page = 1
+    page = 1
     if "page_size" in params:
         page_size = int(params["page_size"])
-    if "start_page" in params:
-        start_page = int(params["start_page"])
-    start = (start_page-1)*page_size
-    end =  (start_page)*page_size
-    return(start, end)
+    if "page" in params:
+        page = int(params["page"])
+    return(page_size,page)

@@ -147,8 +147,10 @@ LOGGING ={
     'handlers':{
         'file':{
             'level':'INFO',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename':'/var/log/blog_application/debug.log',
+            'maxBytes': 1024*1024*1, # 5 MB
+            'backupCount': 5,
             'formatter':'simpleRe',
         }
     },

@@ -9,15 +9,20 @@ from django.template import RequestContext
 from blog.models import Articles
 from rest_framework import serializers, viewsets, status
 from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserProfileSerializer
+from rest_framework.decorators import api_view
 import logging
+from django.db import IntegrityError, transaction
+
 logger = logging.getLogger('django')
 
 User = get_user_model()
 
 @csrf_exempt
+@api_view(['POST', ])
 def login_user(request):
     if request.method == "POST":
         if request.user.is_authenticated:
@@ -28,36 +33,39 @@ def login_user(request):
         if user:
                 login(request,user)
                 logger.info("User with username {} has been successfully logged in".format(username))
-                return(HttpResponse(status = 200))
+                return(Response({"info":"User has successfully logged in"},status = status.HTTP_200_OK))
         else:
             logger.info("User with username {} could not be logged in".format(username))
-            return(JsonResponse({"Error":"User with username {} could not be logged in".format(username)},status= 401))
+            return(Response({"error":"User with username {} could not be logged in".format(username)},status= status.HTTP_401_UNAUTHORIZED))
 
 @csrf_exempt
+@api_view(['GET', ])
 def logout_user(request):
     if request.user.is_authenticated:
         logout(request)
-        return(HttpResponse(status = 200))
+        return(Response({"info":"User has been logged out"},status = status.HTTP_200_OK))
     else:
-        return(HttpResponse(status = 400))
+        return(Response({"info":"User hasn't logged in"},status = status.HTTP_400_BAD_REQUEST))
 
 
 @csrf_exempt
+@api_view(['POST', ])
 def register_user(request):
     if request.method == "POST":
-        data = JSONParser().parse(request)
-        serializer = UserSerializer(data = data)
-        if serializer.is_valid():
-            serializer.save()
-            user_id = User.objects.get(username=data["username"]).id
-            data["user_id"] = user_id
-            serializer = UserProfileSerializer(data = data)
-            if serializer.is_valid():
-                serializer.save()
-                logger.info("new user has been added with username {}".format(data["username"]))
-                return(JsonResponse(data, status = 201))
-        logger.error("user could not be added with data {}".format(data))
-        return(JsonResponse(serializer.errors, status = 400))
+        user_data = JSONParser().parse(request)
+        user_serializer = UserSerializer(data = user_data)
+        if user_serializer.is_valid():
+            with transaction.atomic():
+                user_serializer.save()
+                user_id = User.objects.get(username = user_data["username"]).id
+                user_data["user_id"] = user_id
+                user_profile_serializer = UserProfileSerializer(data = user_data)
+                if user_profile_serializer.is_valid():
+                    user_profile_serializer.save()
+                    logger.info("new user has been added with username {}".format(user_data["username"]))
+                    return(Response(user_data, status = status.HTTP_201_CREATED))
+        logger.error("user could not be added with data {}".format(user_data))
+        return(Response(user_serializer.errors, status = status.HTTP_400_BAD_REQUEST))
 
 def homepage(request):
     if request.user.is_authenticated:
