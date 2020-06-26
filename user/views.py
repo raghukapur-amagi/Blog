@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from .forms import SignUpForm
 from user.models import Users
 from django.template import RequestContext
-from blog.models import Articles
+from blog.models import Articles, ArticleTagMapping, Tags
 from rest_framework import serializers, viewsets, status
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
@@ -76,6 +76,12 @@ def homepage(request):
         if user_id:
             user_articles = Articles.objects.filter(user_id=user_id)[:5]
             if user_articles.exists():
+                for article in user_articles:
+                    tags = ArticleTagMapping.objects.select_related().filter(article__slug = article.slug)
+                    tag_names = []
+                    for tag in tags:
+                        tag_names.append(Tags.objects.get(id = tag.tag_id).tag_name)
+                    article.tags = (",".join(str(tag) for tag in tag_names))
                 return(render(request, "homepage.html", context = { "user_articles":user_articles}))
             else:
                 return(render(request, "homepage.html", context = { "user_articles":[]}))
@@ -84,6 +90,12 @@ def homepage(request):
     else:
         user_articles = Articles.objects.select_related().filter(status = "publish")[:5]
         if user_articles.exists():
+            for article in user_articles:
+                tags = ArticleTagMapping.objects.select_related().filter(article__slug = article.slug)
+                tag_names = []
+                for tag in tags:
+                    tag_names.append(Tags.objects.get(id = tag.tag_id).tag_name)
+                article.tags = (",".join(str(tag) for tag in tag_names))
             return(render(request, "homepage.html", context = {"user_articles":user_articles}))
         else:
             return(render(request, "homepage.html", context = { "user_articles":[]}))

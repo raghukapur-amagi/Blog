@@ -214,7 +214,6 @@ def view(request, slug):
         logger.info("Article does not exist")
         messages.info(request,"Article Does not exist ")
         return HttpResponseRedirect("/home")
-    tags = ArticleTagMapping.objects.filter(article_id = article.id)
     tags = ArticleTagMapping.objects.select_related().filter(article__slug = slug)
     tag_names = []
     for tag in tags:
@@ -270,7 +269,7 @@ def search(request):
         form = (request.POST)
         search = form['search']
         article_search = []
-        articles = Articles.objects.filter(title = search)
+        articles = Articles.objects.filter(title__icontains = search)
         if articles.exists():
                 article_search = articles
         try:
@@ -284,6 +283,12 @@ def search(request):
                     article_search = article_search | articles
                 else:
                     article_search = articles
+        for article in article_search:
+            tags = ArticleTagMapping.objects.select_related().filter(article__slug = article.slug)
+            tag_names = []
+            for tag in tags:
+                tag_names.append(Tags.objects.get(id = tag.tag_id).tag_name)
+            article.tags = (",".join(str(tag) for tag in tag_names))
         if request.user.is_authenticated:
             if article_search:
                 article_search = article_search.filter(user_id = Users.objects.get(user_id=request.user.id))

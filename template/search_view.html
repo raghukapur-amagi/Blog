@@ -7,6 +7,12 @@
 </style>
 {% include 'messages.html' %}
 {% include 'menubar.html' %}
+<form action="search/" method= "POST">
+    {% csrf_token %}
+    <label for="search">Search By Tag/Title</label><br>
+    <input type="text" id="seach" name="search"><br>
+    <input type="submit" value="Submit">
+</form>
 {% if user.is_authenticated %}
 
 <h3> Search Results:- </h3>
@@ -16,6 +22,7 @@
     <tr>
         <th>Article Title</th>
         <th>Date of Update</th>
+        <th>Tags</th>
         <th>Click To View</th>
         <th>Click To Edit</th>
     </tr>
@@ -25,6 +32,7 @@
     <tr> 
         <td>{{ item.title }}</td>
         <td>{{ item.updated_at }}</td>
+        <td>{{ item.tags }}</td>
         <td><a href="/article/{{ item.slug }}/">View</a></td>
         <td><a href="/update/{{ item.slug }}/">Click to Edit</a></td>
     </tr>
@@ -39,6 +47,7 @@
     <tr>
         <th>Article Title</th>
         <th>Date of Update</th>
+        <th>Tags</th>
         <th>Click To View</th>
     </tr>
     {% endif %}
@@ -47,6 +56,7 @@
     <tr> 
         <td>{{ item.title }}</td>
         <td>{{ item.updated_at }}</td>
+        <td>{{ item.tags }}</td>
         <td><a href="/article/{{item.slug}}/">View</a></td>
     </tr>
     </div>
